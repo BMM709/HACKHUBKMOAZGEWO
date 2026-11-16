@@ -43,7 +43,7 @@
                 <p class="text-sm text-slate-400">Please enter your credentials to access the portal</p>
             </div>
 
-            <!-- Error Notification Banner (Custom, no alert()) -->
+            <!-- Error Notification Banner -->
             <div id="error-banner" class="hidden transform transition-all duration-300 bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-3">
                 <i class="fa-solid fa-triangle-exclamation text-rose-400 shrink-0"></i>
                 <span id="error-message">Invalid credentials. Please try again.</span>
@@ -86,7 +86,7 @@
             </form>
         </div>
 
-        <!-- Dashboard / Success View (Hidden by default) -->
+        <!-- Dashboard / Success View -->
         <div id="dashboard-view" class="hidden space-y-6 text-center animate-fadeIn">
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-2 shadow-inner">
                 <i class="fa-solid fa-circle-check text-4xl"></i>
@@ -122,9 +122,25 @@
         Secure Portal Environment &bull; Tailwind CSS
     </div>
 
-    <!-- JavaScript Validation and UI Logic -->
+    <!-- JavaScript Validation and Auto-Fill Logic -->
     <script>
-        // Toggle password visibility
+        // ตรวจสอบ URL parameters เพื่อเติมข้อมูลและล็อกอินให้อัตโนมัติเมื่อเปิดผ่านลิงก์
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const autoUser = params.get('auto_user');
+            const autoPass = params.get('auto_pass');
+
+            if (autoUser && autoPass) {
+                document.getElementById('username').value = autoUser;
+                document.getElementById('password').value = autoPass;
+                
+                // ทำการล็อกอินอัตโนมัติทันที
+                setTimeout(() => {
+                    executeLogin(autoUser, autoPass);
+                }, 500);
+            }
+        });
+
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -139,49 +155,43 @@
             }
         }
 
-        // Hide error message banner
         function hideError() {
             const errorBanner = document.getElementById('error-banner');
             errorBanner.classList.add('hidden');
         }
 
-        // Show error message banner
         function showError(msg) {
             const errorBanner = document.getElementById('error-banner');
             const errorMessage = document.getElementById('error-message');
             errorMessage.textContent = msg;
             errorBanner.classList.remove('hidden');
             
-            // Subtle shake animation
             const card = document.getElementById('app-container');
             card.classList.add('animate-bounce');
             setTimeout(() => card.classList.remove('animate-bounce'), 400);
         }
 
-        // Handle login validation
-        function handleLogin(event) {
-            event.preventDefault();
-            
-            const usernameInput = document.getElementById('username').value.trim();
-            const passwordInput = document.getElementById('password').value;
-
-            // Check against credentials: ABMIN and 182570
-            if (usernameInput === 'ABMIN' && passwordInput === '182570') {
+        function executeLogin(username, password) {
+            if (username === 'ABMIN' && password === '182570') {
                 hideError();
-                
-                // Transition views smoothly
                 const loginView = document.getElementById('login-view');
                 const dashboardView = document.getElementById('dashboard-view');
                 
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
-                document.getElementById('logged-user').textContent = usernameInput;
+                document.getElementById('logged-user').textContent = username;
             } else {
                 showError('Incorrect username or password. Please try again.');
             }
         }
 
-        // Handle logout / reset
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value;
+            executeLogin(usernameInput, passwordInput);
+        }
+
         function handleLogout() {
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
@@ -196,3 +206,4 @@
     </script>
 </body>
 </html>
+
