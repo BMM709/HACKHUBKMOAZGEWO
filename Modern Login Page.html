@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Portal Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Background Glow Effects -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Main Container Card -->
+    <div id="app-container" class="relative w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl p-8 transition-all duration-500">
+        
+        <!-- Login View -->
+        <div id="login-view" class="space-y-6">
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mb-2 shadow-inner">
+                    <i class="fa-solid fa-shield-halved text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-white">Welcome Back</h1>
+                <p class="text-sm text-slate-400">Please enter your credentials to access the portal</p>
+            </div>
+
+            <!-- Error Notification Banner (Custom, no alert()) -->
+            <div id="error-banner" class="hidden transform transition-all duration-300 bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-xl text-sm flex items-center space-x-3">
+                <i class="fa-solid fa-triangle-exclamation text-rose-400 shrink-0"></i>
+                <span id="error-message">Invalid credentials. Please try again.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <!-- Username Field -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="username" required placeholder="Enter username" autocomplete="off"
+                            class="w-full pl-11 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-600 text-sm transition-all">
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password"
+                            class="w-full pl-11 pr-12 py-3 bg-slate-950/50 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-600 text-sm transition-all">
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors">
+                            <i id="eye-icon" class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Button -->
+                <button type="submit" class="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] transition-all duration-200 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 text-sm cursor-pointer">
+                    <span>Confirm</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Dashboard / Success View (Hidden by default) -->
+        <div id="dashboard-view" class="hidden space-y-6 text-center animate-fadeIn">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mb-2 shadow-inner">
+                <i class="fa-solid fa-circle-check text-4xl"></i>
+            </div>
+            
+            <div class="space-y-2">
+                <h2 class="text-2xl font-bold tracking-tight text-white">Access Granted!</h2>
+                <p class="text-sm text-slate-400">Welcome back, <span id="logged-user" class="text-indigo-400 font-semibold">ABMIN</span>.</p>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 text-left space-y-3">
+                <div class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Session Status</div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-300">Security Clearance</span>
+                    <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-medium">Authorized</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-300">Authentication Token</span>
+                    <span class="text-slate-500 font-mono text-xs">JWT-SECURE-9981</span>
+                </div>
+            </div>
+
+            <button onclick="handleLogout()" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 text-slate-200 font-medium rounded-xl border border-slate-700 flex items-center justify-center space-x-2 text-sm">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Footer Copyright -->
+    <div class="absolute bottom-4 text-xs text-slate-600">
+        Secure Portal Environment &bull; Tailwind CSS
+    </div>
+
+    <!-- JavaScript Validation and UI Logic -->
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Hide error message banner
+        function hideError() {
+            const errorBanner = document.getElementById('error-banner');
+            errorBanner.classList.add('hidden');
+        }
+
+        // Show error message banner
+        function showError(msg) {
+            const errorBanner = document.getElementById('error-banner');
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = msg;
+            errorBanner.classList.remove('hidden');
+            
+            // Subtle shake animation
+            const card = document.getElementById('app-container');
+            card.classList.add('animate-bounce');
+            setTimeout(() => card.classList.remove('animate-bounce'), 400);
+        }
+
+        // Handle login validation
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value;
+
+            // Check against credentials: ABMIN and 182570
+            if (usernameInput === 'ABMIN' && passwordInput === '182570') {
+                hideError();
+                
+                // Transition views smoothly
+                const loginView = document.getElementById('login-view');
+                const dashboardView = document.getElementById('dashboard-view');
+                
+                loginView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                document.getElementById('logged-user').textContent = usernameInput;
+            } else {
+                showError('Incorrect username or password. Please try again.');
+            }
+        }
+
+        // Handle logout / reset
+        function handleLogout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            hideError();
+            
+            const loginView = document.getElementById('login-view');
+            const dashboardView = document.getElementById('dashboard-view');
+            
+            dashboardView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
